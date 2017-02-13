@@ -8,7 +8,8 @@ gdzie są przechowywani celem wyświetlenia w statystykach na koniec symulacji.
 
 Requestorzy wybierają providerow poprzez NetworkGateway, ktory przechowuje listę wszyskich oczekujących na pracę providerów.
 Requestor chcący ogłosić 'm' zadań otrzymuje z NetworkGateway wskazniki do m najlepszych (np najtańszych) providerów.
-Następnie, Requestor przydziela każdemu providerowi zadanie. Po rozwiązaniu zadania provider samodzielnie wraca do listy oczekujących na prace.
+Następnie, Requestor przydziela każdemu providerowi zadanie. 
+Po rozwiązaniu zadania provider samodzielnie wraca do listy oczekujących na prace.
 Jeżeli nie ma wolnych providerów, to requestor czeka.
 
 
