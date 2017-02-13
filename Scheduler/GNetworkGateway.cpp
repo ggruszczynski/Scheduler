@@ -9,12 +9,6 @@ GNetworkGateway::GetFreeProviders(size_t count, bool(*comparisonFcn)(const share
 {
 	unique_lock<mutex> lock(mtx);
 	list<shared_ptr<GProvider>> result_list;
-
-
-	//while (count > freeProviders.size() && !isTimeToQuit)
-	//{
-	//	cv.wait(lock);
-	//} 
 	cv.wait(lock, [this, &count, &isTimeToQuit] {return count <= freeProviders.size() || isTimeToQuit; });
 	if (!isTimeToQuit)	
 	{
@@ -48,6 +42,6 @@ void GNetworkGateway::AddProvider(shared_ptr<GProvider> provider)
 
 void GNetworkGateway::WakeUp()
 {
-	// wake up requestors stuck
+	// wake up stucked requestors 
 	cv.notify_all();
 }

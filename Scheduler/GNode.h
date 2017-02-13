@@ -11,8 +11,6 @@ class GNode
 {
 protected:
 	shared_ptr<IRNG_wrapper> irng;
-
-
 	weak_ptr<GNetworkGateway> networkGateway;
 
 	bool time_to_quit = false;

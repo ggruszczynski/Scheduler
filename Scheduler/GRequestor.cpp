@@ -48,14 +48,12 @@ void GRequestor::SetNumberOfRequiredProvidersPerTask(int m_)
 {
 	lock_guard<mutex> lock(mtx);
 	this->m = m_;
-
 }
 
 void GRequestor::SetBuffer(weak_ptr<GNetworkGateway> buffer_)
 {
 	lock_guard<mutex> lock(mtx);
 	this->networkGateway = buffer_;
-
 }
 
 void GRequestor::SetProviderSelectionFunction(bool(*provider_selection_function_)(const shared_ptr<GProvider>&, const shared_ptr<GProvider>&))
