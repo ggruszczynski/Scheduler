@@ -13,7 +13,7 @@ Jeżeli nie ma wolnych providerów, to requestor czeka.
 
 
 Kompilacja:
-C++14, bez dodatkowych bibliotek
+x86, C++14, bez dodatkowych bibliotek
 IDE - MSVS 2017 RC
 
 
