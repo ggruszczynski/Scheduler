@@ -24,7 +24,7 @@ void GRequestor::AnnounceTasks()
 		selectedProviders = spt->GetFreeProviders(m, provider_selection_function, time_to_quit);
 	}
 	else {
-		throw exception("buffer is expired\n");
+		throw exception("Network Gateway has expired.\n");
 	}
 
 	if (!this->time_to_quit)
@@ -37,10 +37,9 @@ void GRequestor::AnnounceTasks()
 			(*itProv)->AddWork(*itTask);
 		}
 
-		int workTime = round(this->irng->GetRandNumber());  // time to announce the next task 
+		const auto workTime = static_cast<size_t>(round(this->irng->GetRandNumber()));  // time to announce the next task 
 		this_thread::sleep_for(chrono::milliseconds(workTime));
 	}
-
 }
 
 
@@ -50,10 +49,10 @@ void GRequestor::SetNumberOfRequiredProvidersPerTask(int m_)
 	this->m = m_;
 }
 
-void GRequestor::SetBuffer(weak_ptr<GNetworkGateway> buffer_)
+void GRequestor::SetBuffer(weak_ptr<GNetworkGateway> networkGateway_)
 {
 	lock_guard<mutex> lock(mtx);
-	this->networkGateway = buffer_;
+	this->networkGateway = networkGateway_;
 }
 
 void GRequestor::SetProviderSelectionFunction(bool(*provider_selection_function_)(const shared_ptr<GProvider>&, const shared_ptr<GProvider>&))

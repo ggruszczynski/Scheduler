@@ -17,12 +17,12 @@ class GBuilder
 	int buildedRequestorsCounter = 0;
 
 public:
-	GBuilder();
+	GBuilder() = default;
 
 	ProviderCharacteristics MakeCharacteristics();
-	shared_ptr<GProvider> MakeProvider(shared_ptr<GNetworkGateway> networkGateway, shared_ptr<IRNG_wrapper> pIRNG_wrapper);
+	shared_ptr<GProvider> MakeProvider(shared_ptr<GNetworkGateway> networkGateway, shared_ptr<IRNG_wrapper> irng);
 	shared_ptr<GRequestor> MakeRequestor(shared_ptr<GNetworkGateway> networkGateway, SimulationParameters simulationParameters);
 
-	~GBuilder();
+	~GBuilder() = default;
 };
 

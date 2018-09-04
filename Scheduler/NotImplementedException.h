@@ -2,24 +2,23 @@
 
 #include <stdexcept>
 
-class NotImplementedException
-	: public std::exception {
+using namespace std;
 
+class NotImplementedException : public exception
+{
 public:
-
 	// Construct with given error message:
 	NotImplementedException(const char * error = "Functionality not yet implemented!")
 	{
-		errorMessage = error;
+		this->errorMessage = error;
 	}
 
 	// Provided for compatibility with std::exception.
-	const char * what() const noexcept
+	const char * what() const noexcept override
 	{
-		return errorMessage.c_str();
+		return this->errorMessage.c_str();
 	}
 
 private:
-
-	std::string errorMessage;
+	string errorMessage;
 };

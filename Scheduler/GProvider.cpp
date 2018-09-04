@@ -2,20 +2,19 @@
 #include "GProvider.h"
 #include "GNetworkGateway.h"
 
-GProvider::GProvider() {}
 
-GProvider::GProvider(ProviderCharacteristics characteristics_, shared_ptr<IRNG_wrapper> irng_) : characteristics(characteristics_), GNode(irng_) {}
+GProvider::GProvider(ProviderCharacteristics characteristics_, shared_ptr<IRNG_wrapper> irng_): GNode(irng_), characteristics(characteristics_) {}
 
 void GProvider::SetGNetworkGateway(weak_ptr<GNetworkGateway> networkGateway_) { this->networkGateway = networkGateway_; }
 
 void GProvider::SolveTasks()
 {
-	std::unique_lock<std::mutex> lock(mtx);
+	unique_lock<mutex> lock(mtx);
 	cv.wait(lock, [this] {return isTaskAssigned || time_to_quit; });
 
 	if (!time_to_quit)
 	{
-		int workTime = round(this->irng->GetRandNumber());
+		auto workTime = static_cast<int>(round(this->irng->GetRandNumber()));
 		this_thread::sleep_for(chrono::milliseconds(workTime));
 
 		try
@@ -48,11 +47,8 @@ void GProvider::PutYourSelfToWaitngForWorkList()
 
 void GProvider::AddWork(shared_ptr<ITask> someTask) 
 {
-	std::unique_lock<std::mutex> lock(mtx);
-
-	while (isTaskAssigned) {
-		cv.wait(lock);
-	}
+	unique_lock<mutex> lock(mtx);
+	cv.wait(lock, [this] {return !isTaskAssigned; });
 
 	this->currentTask = someTask;
 	this->isTaskAssigned = true;
@@ -65,24 +61,24 @@ void GProvider::Quit()
 	cv.notify_all();
 }
 
-ProviderCharacteristics GProvider::GetCharacteristics() { return this->characteristics; }
+ProviderCharacteristics GProvider::GetCharacteristics() const { return this->characteristics; }
 
 void GProvider::UpdateCharacteristics()
 {
 	this->characteristics.taskCounter++;
-	this->characteristics.efficiency = (double)this->characteristics.taskCounter/ this->characteristics.totalWorkTime;  
+	this->characteristics.efficiency = static_cast<double>(this->characteristics.taskCounter)/ this->characteristics.totalWorkTime;  
 
 	/* 
 	 this->characteristics.reputation = ...
 
 	 I decided to skip the 'reputation' in the demo simulator,
 	 because I believe that it would cause the sample project to grow significantly
-	 and make the code diffucult to understand (like provider disconnecting or skipping tasks in random manner)
+	 and make the code difficult to understand (like provider disconnecting or skipping tasks in random manner)
 	 Trivial 'facebook-like' solution sounds good, however it would requiere some AI from the providers while a random 'like' doesnt have much sense. 
 	*/
 } 
 
 GProvider::~GProvider()
 {
-	//cout << "~" << this->characteristics.name << endl;
+	//cout << "~" << this->characteristics.name << endl;  // TODO 
 }

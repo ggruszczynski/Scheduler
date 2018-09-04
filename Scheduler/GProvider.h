@@ -14,7 +14,7 @@ using namespace std;
 
 class GNetworkGateway;
 
-class GProvider: public std::enable_shared_from_this<GProvider> , public GNode
+class GProvider: public enable_shared_from_this<GProvider> , public GNode
 {
 	ProviderCharacteristics characteristics;
 	
@@ -25,15 +25,15 @@ class GProvider: public std::enable_shared_from_this<GProvider> , public GNode
 	void PutYourSelfToWaitngForWorkList();
 
 public:
-	GProvider();
+	GProvider() = default;
 	GProvider(ProviderCharacteristics characteristics_, shared_ptr<IRNG_wrapper> irng_);
-	void SetGNetworkGateway(weak_ptr<GNetworkGateway> buffer_);
+	void SetGNetworkGateway(weak_ptr<GNetworkGateway> networkGateway_);
 
 	void SolveTasks();
 	void AddWork(shared_ptr<ITask> someTask);
 	void Quit() override;
 
-	ProviderCharacteristics GetCharacteristics();
+	ProviderCharacteristics GetCharacteristics() const;
 	void UpdateCharacteristics();
 	~GProvider();
 };

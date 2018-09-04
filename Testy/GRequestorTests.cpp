@@ -12,11 +12,9 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace Testy
 {
-
 	TEST_CLASS(SampleTaskTest)
 	{
 	public:
-
 		TEST_METHOD(RequestorsShouldStopAnnouncingTasks)
 		{
 			//arrange
@@ -24,7 +22,7 @@ namespace Testy
 			GBuilder gproviderBuilder;
 
 			list<shared_ptr<GProvider>> providers;
-			const size_t nprov = 5; // liczba providerow
+			const size_t nprov = 5; // number of providers
 			for (int i = 0; i < nprov; ++i) {
 				auto irng = shared_ptr<IRNG_wrapper>(new RNG_wrapper<uniform_real_distribution<>>(uniform_real_distribution<>(200, 300), default_random_engine(rand())));
 				auto pro = gproviderBuilder.MakeProvider(buffer, irng);
@@ -41,7 +39,6 @@ namespace Testy
 			req->Quit();
 			t.join();
 		}
-
 	};
 }
 

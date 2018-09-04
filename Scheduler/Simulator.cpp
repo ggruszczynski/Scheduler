@@ -12,7 +12,11 @@ void Simulator::RunRequestor(shared_ptr<GRequestor> &requestor)
 	}
 	while (!requestor->IsTimeToQuit())
 	{
-		cout << "r: " << requestor->GetName() << " working\n";
+		{
+			lock_guard<mutex> lock(mtx);
+			cout << "r: " << requestor->GetName() << " working\n";
+
+		}
 		requestor->AnnounceTasks();
 	}
 	lock_guard<mutex> lock(mtx);
@@ -29,7 +33,11 @@ void Simulator::RunProvider(shared_ptr<GProvider> &provider)
 	}
 	while (!provider->IsTimeToQuit())
 	{
-		cout << "p: " << provider->GetCharacteristics().name << " working\n";		
+		{
+			lock_guard<mutex> lock(mtx);
+			cout << "p: " << provider->GetCharacteristics().name << " working\n";
+		}
+	
 		provider->SolveTasks();
 	}
 	lock_guard<mutex> lock(mtx);
@@ -60,7 +68,6 @@ void Simulator::SubtractReqThread()
 	this->reqThreadPool.erase(it);
 }
 
-
 void Simulator::AddProvThreads()
 {
 	lock_guard<mutex> lock(mtx);
@@ -68,14 +75,12 @@ void Simulator::AddProvThreads()
 	this->provThreadPool.insert(make_pair(pro, thread(&Simulator::RunProvider, this, pro)));
 }
 
-
 void Simulator::AddReqThreads()
 {
 	lock_guard<mutex> lock(mtx);
 	auto req = this->gBuilder.MakeRequestor(this->networkGateway, this->simulationParameters);
 	this->reqThreadPool.insert(make_pair(req, thread(&Simulator::RunRequestor, this, req)));
 }
-
 
 void Simulator::ChangeSimulationParameters(SimulationParameters const &simulationParameters_)
 {
@@ -86,53 +91,42 @@ void Simulator::ChangeSimulationParameters(SimulationParameters const &simulatio
 		this->simulationParameters = simulationParameters_;
 	}
 
-	auto networkSize = simulationParameters.GetNetworkSize();
+	const auto networkSize = simulationParameters.GetNetworkSize();
 
-	int d_nReq = networkSize.nReq - reqThreadPool.size();
+	const int d_nReq = networkSize.nReq - reqThreadPool.size();
 	if (d_nReq >= 0)
-	{
-		for (size_t i = 0; i < d_nReq; ++i)
+		for (int i = 0; i < d_nReq; ++i)
 			AddReqThreads();
-	}
 	else
-	{
-		for (size_t i = 0; i < abs(d_nReq); ++i)
+		for (int i = 0; i < abs(d_nReq); ++i)
 			SubtractReqThread();
-	}
 
 
-	int d_nProv = networkSize.nProv - provThreadPool.size();
+	const int d_nProv = networkSize.nProv - provThreadPool.size();
 	if (d_nProv >= 0)
-	{
-		for (size_t i = 0; i < d_nProv; ++i)
+		for (int i = 0; i < d_nProv; ++i)
 			AddProvThreads();
-	}
 	else
-	{
-		for (size_t i = 0; i < abs(d_nProv); ++i)
+		for (int i = 0; i < abs(d_nProv); ++i)
 			SubtractProvThread();
-	}
 
 
 	lock_guard<mutex> lock(mtx);
-	for (auto it = reqThreadPool.begin(); it != reqThreadPool.end(); ++it)
+	for (auto& it : reqThreadPool)
 	{
-		if (!(*it).first->IsTimeToQuit()) //it is ok, but dont waste time...
+		if (!it.first->IsTimeToQuit()) //it is ok, but dont waste time...
 		{
-			(*it).first->SetNumberOfRequiredProvidersPerTask(simulationParameters.m);
-			(*it).first->SetRNG(simulationParameters.irng_req);
-			(*it).first->SetProviderSelectionFunction(simulationParameters.provider_selection_function);
+			it.first->SetNumberOfRequiredProvidersPerTask(simulationParameters.m);
+			it.first->SetRNG(simulationParameters.irng_req);
+			it.first->SetProviderSelectionFunction(simulationParameters.provider_selection_function);
 		}
 	}
 
-	for (auto it = provThreadPool.begin(); it != provThreadPool.end(); ++it)
+	for (auto& it : provThreadPool)
 	{
-		if (!(*it).first->IsTimeToQuit())
-		{
-			(*it).first->SetRNG(simulationParameters.irng_prov);
-		}
+		if (!it.first->IsTimeToQuit())
+			it.first->SetRNG(simulationParameters.irng_prov);
 	}
-
 
 	this->endTime = this->startTime + chrono::seconds(this->simulationParameters.T);
 	cout << "--- changed simulation parameters ---\n";
@@ -140,13 +134,14 @@ void Simulator::ChangeSimulationParameters(SimulationParameters const &simulatio
 
 void Simulator::LaunchSimulation()
 {
-	auto networkSize = simulationParameters.GetNetworkSize();
+	const auto networkSize = simulationParameters.GetNetworkSize();
 
 	for (size_t i = 0; i < networkSize.nProv; ++i)
 		AddProvThreads();	// launch providers
 
 	for (size_t i = 0; i < networkSize.nReq; ++i)
 		AddReqThreads();	// launch requestors
+
 
 	{
 		unique_lock<mutex> lk(mtx);
@@ -167,7 +162,7 @@ void Simulator::QuitSimulation()
 	QuitProv();
 
 	cout << "-------------------simulation finished-------------------\n";
-	cout << "ProviderName (cena, wydajnosc, reputacja) liczba policzonych zadan. " << endl;
+	cout << "ProviderName (price, efficiency, reputation) number of accomplished tasks. " << endl;
 	for_each(this->provThreadPool.begin(), provThreadPool.end(), [](pair<const shared_ptr<GProvider>, thread>  &p) {
 		p.first->GetCharacteristics().Display();
 	});
@@ -190,8 +185,7 @@ void Simulator::QuitReq()
 
 	{
 		unique_lock<mutex> lk(mtx);
-		while (req_thread_count > 0)
-			cv.wait(lk);
+		cv.wait(lk, [this] {return !(req_thread_count > 0); });
 		cout << "--- requestors quitted ---\n";
 	}
 }
@@ -209,11 +203,7 @@ void Simulator::QuitProv()
 
 	{
 		unique_lock<mutex> lk(mtx);
-		while (prov_thread_count > 0)
-			cv.wait(lk);
+		cv.wait(lk, [this] {return !(prov_thread_count > 0); }); 
 		cout << "--- providers quitted ---\n";
 	}
 }
-
-
-Simulator::~Simulator() {};

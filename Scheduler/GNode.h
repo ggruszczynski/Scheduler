@@ -16,7 +16,7 @@ protected:
 	bool time_to_quit = false;
 	mutex mtx;
 public:
-	GNode() {};
+	GNode() = default;
 	GNode(shared_ptr<IRNG_wrapper> irng_);
 
 	void SetRNG(shared_ptr<IRNG_wrapper> irng_);
@@ -24,5 +24,5 @@ public:
 	virtual void Quit() = 0;
 	bool IsTimeToQuit() const;
 
-	virtual ~GNode() {};
+	virtual ~GNode() = default;
 };

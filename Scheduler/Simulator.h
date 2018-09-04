@@ -48,10 +48,10 @@ class Simulator
 	void QuitSimulation();
 
 public:
-	Simulator(shared_ptr<GNetworkGateway> const &buffer_, SimulationParameters const &simulationParameters);
+	Simulator(shared_ptr<GNetworkGateway> const &networkGateway_, SimulationParameters const &simulationParameters);
 
 	void LaunchSimulation();
 	void ChangeSimulationParameters(SimulationParameters const &simulationParameters_);
 
-	~Simulator();
+	~Simulator() = default;
 };

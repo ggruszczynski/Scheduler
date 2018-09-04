@@ -21,7 +21,7 @@ namespace Testy
 		TEST_METHOD(GBufferAddGetProvidersWithoutDeadlock)
 		{
 			//arrange
-			shared_ptr<GNetworkGateway> networkGateway = std::make_shared<GNetworkGateway>();
+			shared_ptr<GNetworkGateway> networkGateway = make_shared<GNetworkGateway>();
 			GBuilder gproviderBuilder;
 		
 			for (int i = 0; i < 5; ++i)
@@ -30,14 +30,13 @@ namespace Testy
 				gproviderBuilder.MakeProvider(networkGateway, irng);
 			}
 				
-
 			//act
 			auto someProviders1 = async(&GNetworkGateway::GetFreeProviders, networkGateway, 3, cheapest_first, false);
 			auto someProviders2 = async(&GNetworkGateway::GetFreeProviders, networkGateway, 7, cheapest_first, false);
 
 			list<shared_ptr<GProvider>> sp1 = someProviders1.get();
 
-			std::thread t1([](GBuilder& builder, shared_ptr<GNetworkGateway> gateway, int N)
+			thread t1([](GBuilder& builder, shared_ptr<GNetworkGateway> gateway, int N)
 			{
 				OutputDebugString(L" providers will be added... \n");
 				this_thread::sleep_for(chrono::seconds(3)); 
@@ -56,13 +55,12 @@ namespace Testy
 			t1.join();
 
 			//assert
-			int ile1 = sp1.size();
-			int ile2 = sp2.size();
-			Assert::AreEqual(3, ile1);
-			Assert::AreEqual(7, ile2);
-			Assert::AreEqual(1, networkGateway->CountFreeProviders());
+			const size_t amount1 = sp1.size();
+			const size_t amount2 = sp2.size();
+			Assert::AreEqual(size_t(3), amount1);
+			Assert::AreEqual(size_t(7), amount2);
+			Assert::AreEqual(size_t(1), networkGateway->CountFreeProviders());
 		}
-
 	};
 }
 

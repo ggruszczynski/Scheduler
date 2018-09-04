@@ -1,8 +1,6 @@
 #include "GNetworkGateway.h"
 
-GNetworkGateway:: GNetworkGateway(){};
 GNetworkGateway:: GNetworkGateway(list<shared_ptr<GProvider>> &freeProviders_) :freeProviders(freeProviders_) {};
-GNetworkGateway::~GNetworkGateway(){}
 
 list<shared_ptr<GProvider>> 
 GNetworkGateway::GetFreeProviders(size_t count, bool(*comparisonFcn)(const shared_ptr<GProvider> &, const shared_ptr<GProvider> &), const bool &isTimeToQuit)
@@ -14,24 +12,24 @@ GNetworkGateway::GetFreeProviders(size_t count, bool(*comparisonFcn)(const share
 	{
 		this->freeProviders.sort(comparisonFcn);
 		auto it = this->freeProviders.begin();
-		auto end = std::next(freeProviders.begin(), count);
+		auto end = next(freeProviders.begin(), count);
 		result_list.splice(result_list.begin(), freeProviders, it, end);
 	}
 	return result_list;
 }
 
-int GNetworkGateway::CountFreeProviders()
+size_t GNetworkGateway::CountFreeProviders()
 {
 	lock_guard<mutex> lock(mtx);
-	int ileWolnych = freeProviders.size();
-	return ileWolnych;
+	const auto number_of_free_providers = freeProviders.size();
+	return number_of_free_providers;
 }
 
 void GNetworkGateway::AddProvider(shared_ptr<GProvider> provider)
 {	
 	lock_guard<mutex> lock(mtx);
 
-	bool isXThere = find(freeProviders.begin(), freeProviders.end(), provider) != freeProviders.end();
+	const bool isXThere = find(freeProviders.begin(), freeProviders.end(), provider) != freeProviders.end();
 	if (!isXThere)
 	{
 		freeProviders.emplace_back(provider);
@@ -42,6 +40,6 @@ void GNetworkGateway::AddProvider(shared_ptr<GProvider> provider)
 
 void GNetworkGateway::WakeUp()
 {
-	// wake up stucked requestors 
+	// wake up stuck requestors 
 	cv.notify_all();
 }

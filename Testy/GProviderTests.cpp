@@ -16,8 +16,6 @@ namespace Testy
 	TEST_CLASS(ProviderTests)
 	{
 	public:
-
-
 		TEST_METHOD(ProviderShouldChangeTheirWorkSpeed)
 		{
 			//arrange
@@ -30,11 +28,10 @@ namespace Testy
 			auto ptr_irng2 = shared_ptr<IRNG_wrapper>(new RNG_wrapper<uniform_real_distribution<>>(uniform_real_distribution<>(1, 3), default_random_engine(rand())));
 			pro->SetRNG(ptr_irng2);  // TODO make assertion ;p
 
-			Assert::AreEqual(1, buffer->CountFreeProviders());
+			Assert::AreEqual(size_t(1), buffer->CountFreeProviders());
 			list<shared_ptr<GProvider>> selectedProviders = buffer->GetFreeProviders(1, cheapest_first, false);
-			Assert::AreEqual(0, buffer->CountFreeProviders());
+			Assert::AreEqual(size_t(0), buffer->CountFreeProviders());
 		}
-
 
 
 		TEST_METHOD(ProviderShouldGoBackToBufferAfterTaskSolving)
@@ -43,7 +40,7 @@ namespace Testy
 			shared_ptr<GNetworkGateway> buffer = make_shared<GNetworkGateway>();
 			GBuilder gproviderBuilder;
 
-			const int n = 5; // liczba providerow = liczba liczacych podzadanie	
+			const int n = 5; // amount of providers 	
 			thread threads[n];
 			for (int i = 0; i <n; ++i) {
 				auto irng = shared_ptr<IRNG_wrapper>(new RNG_wrapper<normal_distribution<>>(normal_distribution<>(0, 2), default_random_engine(rand())));
@@ -58,7 +55,7 @@ namespace Testy
 			//act
 			list<shared_ptr<GProvider>> selectedProviders = buffer->GetFreeProviders(n, cheapest_first, false);
 			Assert::AreEqual(n, (int)selectedProviders.size());
-			Assert::AreEqual(0, buffer->CountFreeProviders());
+			Assert::AreEqual(size_t(0), buffer->CountFreeProviders());
 
 			auto itTask = tasks.begin();
 			auto itProv = selectedProviders.begin();
@@ -72,7 +69,7 @@ namespace Testy
 			}
 
 			//assert
-			Assert::AreEqual(n, buffer->CountFreeProviders());
+			Assert::AreEqual(size_t(n), buffer->CountFreeProviders());
 		}
 
 
@@ -82,8 +79,8 @@ namespace Testy
 			shared_ptr<GNetworkGateway> buffer = make_shared<GNetworkGateway>();
 			GBuilder gproviderBuilder;
 
-			const size_t n = 5; // liczba providerow
-			std::thread threads[n];
+			const size_t n = 5; // amount of providers 	
+			thread threads[n];
 
 			for (int i = 0; i <n; ++i) {
 				auto irng = shared_ptr<IRNG_wrapper>(new RNG_wrapper<normal_distribution<>>(normal_distribution<>(0, 2), default_random_engine(rand())));
@@ -104,7 +101,7 @@ namespace Testy
 			}
 
 			//assert
-			Assert::AreEqual(0, buffer->CountFreeProviders());
+			Assert::AreEqual(size_t(0), buffer->CountFreeProviders());
 		}
 
 
@@ -113,24 +110,23 @@ namespace Testy
 			//arrange
 			const size_t m = 3; // number of providers needed to solve the subtask 
 
-			shared_ptr<GNetworkGateway> buffer = std::make_shared<GNetworkGateway>();
+			shared_ptr<GNetworkGateway> networkGateway = make_shared<GNetworkGateway>();
 			GBuilder gproviderBuilder;
-			std::thread threads[m];
+			thread threads[m];
 			for (size_t i = 0; i < m; ++i)
 			{
 				auto irng = shared_ptr<IRNG_wrapper>(new RNG_wrapper<normal_distribution<>>(normal_distribution<>(0, 2), default_random_engine(rand())));
-				auto pro = gproviderBuilder.MakeProvider(buffer, irng);	
+				auto pro = gproviderBuilder.MakeProvider(networkGateway, irng);	
 				threads[i] = thread(&GProvider::SolveTasks, pro);
 			}
 
-			list<shared_ptr<GProvider>> selectedProviders = buffer->GetFreeProviders(m, cheapest_first, false);
+			list<shared_ptr<GProvider>> selectedProviders = networkGateway->GetFreeProviders(m, cheapest_first, false);
 
 			auto r_irng = shared_ptr<IRNG_wrapper>(
 				new RNG_wrapper<uniform_real_distribution<>>(uniform_real_distribution<>(1, 2), default_random_engine(rand()))
 				);
 			GRequestor req(r_irng, "RequestorName", m);
 			auto tasks = req.PrepareTasks(m);
-
 
 			//act
 			auto itTask = tasks.begin();
@@ -141,7 +137,7 @@ namespace Testy
 			}
 
 			//assert
-			selectedProviders = buffer->GetFreeProviders(m, cheapest_first, false);  // providers should go back to networkGateway after job, then we re-take them ;p
+			selectedProviders = networkGateway->GetFreeProviders(m, cheapest_first, false);  // providers should go back to networkGateway after job, then we re-take them ;p
 			itTask = tasks.begin();
 			itProv = selectedProviders.begin();
 			for (; itProv != selectedProviders.end(); ++itProv, ++itTask)
@@ -156,18 +152,14 @@ namespace Testy
 				Assert::IsTrue(result.find(answer) != string::npos);
 			}
 
-
 			// clean up
 			for (auto itProv = selectedProviders.begin(); itProv != selectedProviders.end(); ++itProv)
-			{
 				(*itProv)->Quit();
-			}
-
-			for (int i = 0; i < m; ++i) {
+			
+			for (int i = 0; i < m; ++i)
 				threads[i].join();
-			}
+			
 		}
-
 	};
 }
 

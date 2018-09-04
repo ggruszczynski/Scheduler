@@ -12,7 +12,7 @@ using namespace std;
 class GRequestor : public GNode
 {
 	string name;
-	size_t m;	  // number providers needed to solve the next subtask 
+	size_t m;	  // number providers needed to solve the next task (task consists of m subtasks, assign 1 provider/subtask) 
 	list<shared_ptr<ITask>> announcedTasksStore; // store the tasks, maybe you will need the solution sometime...
 	bool(*provider_selection_function)(const shared_ptr<GProvider> &, const shared_ptr<GProvider>&) = nullptr;
 public:
@@ -21,7 +21,7 @@ public:
 	vector<shared_ptr<ITask>> PrepareTasks(size_t m_);
 	void AnnounceTasks();
 
-	void SetBuffer(weak_ptr<GNetworkGateway> buffer_);
+	void SetBuffer(weak_ptr<GNetworkGateway> networkGateway_);
 	void SetNumberOfRequiredProvidersPerTask(int m_);;
 	void SetProviderSelectionFunction(bool(*provider_selection_function_)(const shared_ptr<GProvider> &, const shared_ptr<GProvider>&));
 

@@ -16,15 +16,15 @@ private:
 	mutex mtx;
 	condition_variable cv;
 public:
-	GNetworkGateway();
+	GNetworkGateway() = default;
 	GNetworkGateway(list<shared_ptr<GProvider>> &freeProviders_);
 
 	void AddProvider(shared_ptr<GProvider> provider);
 	list<shared_ptr<GProvider>> GetFreeProviders(size_t count, bool(*comparisonFcn)(const shared_ptr<GProvider>&, const shared_ptr<GProvider> &), const bool &isTimeToQuit);
 
 	void WakeUp();
-	int CountFreeProviders();
+	size_t CountFreeProviders();
 
-	~GNetworkGateway();
+	~GNetworkGateway() = default;
 };
 
