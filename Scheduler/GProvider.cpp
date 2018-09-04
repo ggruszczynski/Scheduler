@@ -80,5 +80,5 @@ void GProvider::UpdateCharacteristics()
 
 GProvider::~GProvider()
 {
-	//cout << "~" << this->characteristics.name << endl;  // TODO 
+	//cout << "~" << this->characteristics.name << endl; 
 }

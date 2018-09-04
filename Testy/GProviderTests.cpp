@@ -26,7 +26,7 @@ namespace Testy
 			auto pro = gproviderBuilder.MakeProvider(buffer, ptr_irng);
 
 			auto ptr_irng2 = shared_ptr<IRNG_wrapper>(new RNG_wrapper<uniform_real_distribution<>>(uniform_real_distribution<>(1, 3), default_random_engine(rand())));
-			pro->SetRNG(ptr_irng2);  // TODO make assertion ;p
+			pro->SetRNG(ptr_irng2);
 
 			Assert::AreEqual(size_t(1), buffer->CountFreeProviders());
 			list<shared_ptr<GProvider>> selectedProviders = buffer->GetFreeProviders(1, cheapest_first, false);
