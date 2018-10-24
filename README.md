@@ -16,7 +16,7 @@ IDE - MSVS 2017 RC
 
 ## Task
 
-Write a program (in a chosen by you language), which will launch the simulation. 
+Write a program (in a chosen by you language), which will launch the 'task assignment' simulation. 
 It should be possible to change the simulation parameters on the fly.
 
 ### Input(should have reasonable default values)
