@@ -1,19 +1,5 @@
 # ===Simulator - ENG===
 
-Each `requestor`/`provider` (`req`/`prov`) works in a separate thread.
-Entering the network means that a new req/prov is created and launched in a separate thread.
-Leaving the network means that the thread is stopped and the corresponding 'unemployed' req/prov is moved to the `escaped` list where they are stored in order to be displayed in the statistics at the end of simulation.
-
-Requestors can choose providers through the `NetworkGateway`, which have a list of all 'work awaiting' providers.
-Requestor who wishes to announce a task consisting of `m` subtasks receives pointers to `m` best (ex. cheapest) providers.
-Next, Requestor assigns a task to each provider.
-Having the task solved, the provider returns to the list of 'work awaiting' providers.
-If there are no free providers, the requestor has to wait.
-
-Compilation:\
-x86, C++14, without any additional libraries.\
-IDE - MSVS 2017 RC
-
 ## Task
 
 Write a program (in a chosen by you language), which will launch the 'task assignment' simulation. 
@@ -75,6 +61,23 @@ ProviderName (price, efficiency, reputation), number of accomplished tasks.
 
 Supported Distribution Functions: at least uniform distribution, there shall be 2-3 more to choose from.\
 Provider selection function: at least 3 functions which assess single parameters, however there might be weighted average or some other original idea.
+
+
+## Description of the solution
+
+Each `requestor`/`provider` (`req`/`prov`) works in a separate thread.
+Entering the network means that a new req/prov is created and launched in a separate thread.
+Leaving the network means that the thread is stopped and the corresponding 'unemployed' req/prov is moved to the `escaped` list where they are stored in order to be displayed in the statistics at the end of simulation.
+
+Requestors can choose providers through the `NetworkGateway`, which have a list of all 'work awaiting' providers.
+Requestor who wishes to announce a task consisting of `m` subtasks receives pointers to `m` best (ex. cheapest) providers.
+Next, Requestor assigns a task to each provider.
+Having the task solved, the provider returns to the list of 'work awaiting' providers.
+If there are no free providers, the requestor has to wait.
+
+Compilation:\
+x86, C++14, without any additional libraries.\
+IDE - MSVS 2017 RC
 
 
 # ===Symulator - PL===
